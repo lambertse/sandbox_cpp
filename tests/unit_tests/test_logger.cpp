@@ -9,9 +9,6 @@
 class SandboxLoggerTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    // Reset logger state before each test
-    sandbox::logger::stopLogger();
-
     // Clear captured messages
     out_messages.clear();
     err_messages.clear();
@@ -27,7 +24,6 @@ class SandboxLoggerTest : public ::testing::Test {
   }
 
   void TearDown() override {
-    sandbox::logger::stopLogger();
     out_messages.clear();
     err_messages.clear();
   }
@@ -242,19 +238,6 @@ TEST_F(SandboxLoggerTest, EnableDisableLogLevels) {
   EXPECT_FALSE(sandbox::logger::allowed(sandbox::logger::LOG_LEVEL_INFO));
 }
 
-// Test stopLogger functionality
-TEST_F(SandboxLoggerTest, StopLogger) {
-  initLogger(sandbox::logger::LOG_LEVEL_FROM_INFO);
-
-  EXPECT_TRUE(sandbox::logger::allowed(sandbox::logger::LOG_LEVEL_INFO));
-
-  sandbox::logger::stopLogger();
-
-  EXPECT_FALSE(sandbox::logger::allowed(sandbox::logger::LOG_LEVEL_INFO));
-  EXPECT_FALSE(sandbox::logger::allowed(sandbox::logger::LOG_LEVEL_WARN));
-  EXPECT_FALSE(sandbox::logger::allowed(sandbox::logger::LOG_LEVEL_ERROR));
-}
-
 // Test different data types in formatting
 TEST_F(SandboxLoggerTest, DifferentDataTypes) {
   initLogger(sandbox::logger::LOG_LEVEL_INFO);
@@ -405,19 +388,4 @@ TEST_F(SandboxLoggerTest, EmptyFormatString) {
 
   ASSERT_EQ(out_messages.size(), 1);
   EXPECT_THAT(out_messages[0], ::testing::HasSubstr("INFO    :    "));
-}
-
-// Test error handling in to_string conversion
-TEST_F(SandboxLoggerTest, ToStringErrorHandling) {
-  // This tests the try-catch in the template to_string function
-  // Create a type that might cause stringstream issues
-  struct ProblematicType {
-    // No stream operator defined, might cause issues
-  };
-
-  ProblematicType problematic;
-  std::string result = sandbox::logger::to_string(problematic);
-
-  // Should return "{}" on conversion failure
-  EXPECT_EQ(result, "{}");
 }

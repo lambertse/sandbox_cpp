@@ -31,7 +31,6 @@ void init(LogLevels allowedLevels = LOG_LEVEL_SILENCE,
           LoggerFunctionType outLogFunc = {},
           LoggerFunctionType errLogFunc = {});
 
-void stopLogger();
 void changeLogLevels(LogLevels allowedLevels = LOG_LEVEL_SILENCE);
 bool allowed(LogLevel level);
 void enable(LogLevel level);

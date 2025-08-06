@@ -1,15 +1,22 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <thread>
+
 #include "sandbox/config/config.h"
+#include "sandbox/core/logger.h"
 #include "sandbox/core/sandbox.h"
 
+using namespace sandbox;
 class SandboxTest : public ::testing::Test {
  protected:
   void SetUp() override {
     // Initialize logger for tests
-    Logger::getInstance().initialize("sandbox_test.log", LogLevel::ERROR,
-                                     false);
+    sandbox::logger::init(sandbox::logger::LOG_LEVEL_VERBOSE,
+                          [](const auto& msg) {
+                            // Capture output message
+                            std::cout << msg << std::endl;
+                          });
 
     // Create basic valid configuration
     config = ConfigLoader::create_default();
