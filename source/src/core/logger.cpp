@@ -44,7 +44,7 @@ bool allowed(LogLevel level) {
   return statics().allowedLevels.load(std::memory_order_relaxed) & level;
 }
 
-void enable(LogLevel level) { statics().allowedLevels &= level; }
+void enable(LogLevel level) { statics().allowedLevels |= level; }
 
 void disable(LogLevel level) { statics().allowedLevels &= ~level; }
 
@@ -53,6 +53,8 @@ void logImpl(LogLevel filteredLevel, const std::string &msg) {
     case LOG_LEVEL_INFO:
     case LOG_LEVEL_DEBUG:
     case LOG_LEVEL_VERBOSE:
+    case LOG_LEVEL_WARN:
+    case LOG_LEVEL_FATAL:
       statics().out(msg);
       break;
     default:

@@ -23,7 +23,7 @@ add_executable(unit_tests
     unit_tests/test_logger.cpp
     unit_tests/test_config.cpp
     unit_tests/test_sandbox.cpp
-    # unit_tests/test_main.cpp
+    unit_tests/test_main.cpp
 )
 
 # Link against Google Test target_link_libraries

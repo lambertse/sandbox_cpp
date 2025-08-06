@@ -30,6 +30,13 @@ ExecutionResult Sandbox::execute() {
   result.execution_time = std::chrono::milliseconds(0);
   result.memory_used_kb = 0;
 
+  if (!config.is_valid()) {
+    result.error_message = "Invalid configuration";
+    SANDBOX_LOGGER_ERROR(result.error_message);
+    current_status = SandboxStatus::ERROR;
+    return result;
+  }
+
   try {
     // Setup execution environment
     if (!setup_working_directory()) {
@@ -39,6 +46,7 @@ ExecutionResult Sandbox::execute() {
 
     // Fork and execute the program
     child_pid = fork_and_exec();
+
     if (child_pid == -1) {
       result.error_message = "Failed to fork process";
       current_status = SandboxStatus::ERROR;
@@ -152,10 +160,12 @@ pid_t Sandbox::fork_and_exec() {
 
     // If we reach here, execv failed
     SANDBOX_LOGGER_ERROR("execv failed: {}", strerror(errno));
-    _exit(1);
+    _exit(1);  // Exit child process with error_message
   }
 
   // Parent process
+  //
+  SANDBOX_LOGGER_DEBUG("Fork successful, child PID: {}", pid);
   return pid;
 }
 

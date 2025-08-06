@@ -12,18 +12,21 @@ using LogLevels = uint8_t;
 using LogLevel = uint8_t;
 
 inline constexpr LogLevel LOG_LEVEL_SILENCE = 0;
-inline constexpr LogLevel LOG_LEVEL_INFO = 1;
-inline constexpr LogLevel LOG_LEVEL_WARN = 2;
-inline constexpr LogLevel LOG_LEVEL_ERROR = 4;
-inline constexpr LogLevel LOG_LEVEL_FATAL = 8;
-inline constexpr LogLevel LOG_LEVEL_DEBUG = 16;
+inline constexpr LogLevel LOG_LEVEL_DEBUG = 1;
+inline constexpr LogLevel LOG_LEVEL_INFO = 2;
+inline constexpr LogLevel LOG_LEVEL_WARN = 4;
+inline constexpr LogLevel LOG_LEVEL_ERROR = 8;
+inline constexpr LogLevel LOG_LEVEL_FATAL = 16;
 inline constexpr LogLevel LOG_LEVEL_VERBOSE = 32;
+
 inline constexpr LogLevel LOG_LEVEL_FROM_ERROR =
     LOG_LEVEL_ERROR | LOG_LEVEL_FATAL;
 inline constexpr LogLevel LOG_LEVEL_FROM_WARN =
     LOG_LEVEL_WARN | LOG_LEVEL_FROM_ERROR;
 inline constexpr LogLevel LOG_LEVEL_FROM_INFO =
     LOG_LEVEL_INFO | LOG_LEVEL_FROM_WARN;
+inline constexpr LogLevel LOG_LEVEL_FROM_DEBUG =
+    LOG_LEVEL_DEBUG | LOG_LEVEL_FROM_INFO;
 
 using LoggerFunctionType = std::function<void(const std::string &msg)>;
 

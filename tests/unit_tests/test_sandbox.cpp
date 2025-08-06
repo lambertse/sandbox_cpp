@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <filesystem>
 #include <thread>
 
 #include "sandbox/config/config.h"
@@ -12,7 +13,7 @@ class SandboxTest : public ::testing::Test {
  protected:
   void SetUp() override {
     // Initialize logger for tests
-    sandbox::logger::init(sandbox::logger::LOG_LEVEL_VERBOSE,
+    sandbox::logger::init(sandbox::logger::LOG_LEVEL_SILENCE,
                           [](const auto& msg) {
                             // Capture output message
                             std::cout << msg << std::endl;
@@ -20,7 +21,11 @@ class SandboxTest : public ::testing::Test {
 
     // Create basic valid configuration
     config = ConfigLoader::create_default();
-    config.program_path = "/bin/echo";
+    if (std::filesystem::exists("/run/current-system/sw/bin/echo")) {
+      config.program_path = "/run/current-system/sw/bin/echo";
+    } else {
+      config.program_path = "/bin/echo";
+    }
     config.program_args = {"Hello", "Sandbox", "Test"};
     config.memory_limit_mb = 64;
     config.cpu_time_limit_sec = 5;
@@ -88,7 +93,10 @@ TEST_F(SandboxTest, StatusTransitions) {
 
 TEST_F(SandboxTest, ExecutionTiming) {
   // Use a program that takes some time
-  config.program_path = "/bin/sleep";
+  config.program_path = "/run/current-system/sw/bin/sleep";
+  if (!std::filesystem::exists(config.program_path)) {
+    config.program_path = "/bin/sleep";
+  }
   config.program_args = {"1"};  // Sleep for 1 second
 
   Sandbox sandbox(config);

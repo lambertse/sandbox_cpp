@@ -1,35 +1,46 @@
 #include <gtest/gtest.h>
 
 #include <filesystem>
+#include <fstream>
 
 #include "sandbox/config/config.h"
 #include "sandbox/core/logger.h"
 using namespace sandbox;
 class SandboxConfigTest : public ::testing::Test {
  protected:
-  void SetUp() override {
-    // Create a test executable for validation
-    test_executable = "/bin/echo";  // This should exist on most systems
+  static void SetUpTestSuite() {
     initLogger();
-  }  // Helper function to initialize logger with capture functions
 
-  void TearDown() override {
-    // Cleanup if needed
-    if (std::filesystem::exists(test_executable)) {
-      std::filesystem::remove(test_executable);
+    test_executable = "/tmp/echo.tmp";  // This should exist on most systems
+    // Create a simple test executable for validation
+    std::ofstream ofs(test_executable);
+    if (!ofs) {
+      throw std::runtime_error("Failed to create test executable file");
     }
+    ofs << "#!/bin/sh\necho 'Hello, Sandbox!'\n";
+    ofs.close();
+    // Initialize shared resources
   }
 
-  void initLogger(sandbox::logger::LogLevels levels =
-                      sandbox::logger::LOG_LEVEL_FROM_INFO) {
+  // Runs once after all tests in this suite
+  static void TearDownTestSuite() {
+    // Cleanup shared resources
+    // if (std::filesystem::exists(test_executable)) {
+    //   std::filesystem::remove(test_executable);
+    // }
+  }
+
+  static void initLogger(sandbox::logger::LogLevels levels =
+                             sandbox::logger::LOG_LEVEL_FROM_INFO) {
     sandbox::logger::init(levels, [](const auto& msg) {
       // Capture output message
       std::cout << msg << std::endl;
     });
   }
 
-  std::string test_executable;
+  static std::string test_executable;
 };
+std::string SandboxConfigTest::test_executable;
 
 TEST_F(SandboxConfigTest, DefaultConfiguration) {
   SandboxConfig config = ConfigLoader::create_default();
