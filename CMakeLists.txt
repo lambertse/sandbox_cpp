@@ -5,6 +5,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Set build type to Debug (this affects all subdirectories)
+set(CMAKE_BUILD_TYPE Debug)
+
+# OR set debug flags globally (affects all targets)
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+set(CMAKE_C_FLAGS_DEBUG "-g -O0")
+
 # Find required packages
 # find_package(PkgConfig REQUIRED)
 # pkg_check_modules(SECCOMP REQUIRED libseccomp)
