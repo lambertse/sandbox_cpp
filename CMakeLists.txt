@@ -12,6 +12,15 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    message(STATUS "Using Clang or GCC compiler")
+    add_compile_options(-Wall -Wextra -Wpedantic)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    message(STATUS "Using MSVC compiler")
+    add_compile_options(/W4)
+endif()
+
+
 # Find required packages
 # find_package(PkgConfig REQUIRED)
 # pkg_check_modules(SECCOMP REQUIRED libseccomp)

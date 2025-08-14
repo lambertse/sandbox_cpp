@@ -5,24 +5,64 @@ A beginner-friendly C++ sandbox implementation for secure program execution on L
 ## Project Structure
 
 ```
-cpp-sandbox/
-├── CMakeLists.txt                    # Main build configuration
-├── README.md                         # This file
-├── src/                             # Core sandbox implementation
-│   ├── core/
-│   │   ├── sandbox.h/cpp            # Main sandbox execution engine
-│   │   └── logger.h/cpp             # Logging system
-│   ├── config/
-│   │   ├── sandbox_config.h/cpp     # Configuration management
-│   └── main.cpp                     # Command-line interface
-├── examples/                        # Demonstration programs
-│   ├── basic_usage/                 # Simple examples
-│   ├── resource_testing/            # Resource limit demos
-│   └── malicious_simulation/        # Security testing examples
-└── tests/                           # Comprehensive test suite
-    ├── unit_tests/                  # Component testing
-    └── integration_tests/           # Full workflow testing
+### Core Source Files
 ```
+source/
+├── main.cpp                           # CLI interface
+├── include/sandbox/
+│   ├── core/
+│   │   ├── sandbox.h                  # Main sandbox engine
+│   │   └── logger.h                   # Logging system
+│   ├── config/
+│   │   └── config.h                   # Configuration management
+│   └── utils/
+│       └── string_utils.h             # String utilities
+└── src/
+    ├── core/
+    │   ├── sandbox.cpp                # Sandbox implementation
+    │   └── logger.cpp                 # Logger implementation
+    └── config/
+        └── config.cpp                 # Config implementation
+```
+
+### Example Programs
+```
+examples/
+├── basic_usage/
+│   ├── hello_world.cpp               # Simple greeting
+│   ├── simple_calculator.cpp         # Math operations
+│   └── file_operations.cpp           # File I/O demo
+├── resource_testing/
+│   ├── memory_allocator.cpp          # Memory limit testing
+│   ├── cpu_intensive.cpp             # CPU time testing
+│   └── file_creator.cpp              # File descriptor testing
+└── malicious_simulation/
+    ├── fork_bomb.cpp                 # Process limit testing
+    ├── infinite_loop.cpp             # Timeout testing
+    └── memory_bomb.cpp               # Memory exhaustion testing
+```
+
+### Test Suite
+```
+tests/
+├── unit_tests/
+│   ├── test_main.cpp                 # Test runner
+│   ├── test_config.cpp               # Config testing
+│   ├── test_logger.cpp               # Logger testing
+│   └── test_sandbox.cpp              # Sandbox testing
+└── integration_tests/
+    ├── integration_test_main.cpp     # Integration test runner
+    ├── test_resource_limits.cpp      # Resource enforcement tests
+    ├── test_execution_flow.cpp       # Workflow tests
+    └── test_error_handling.cpp       # Error scenario tests
+```
+
+### Build System
+```
+├── CMakeLists.txt                    # Main build config
+├── examples/CMakeLists.txt           # Example builds
+├── tests/CMakeLists.txt              # Test builds
+└── build/                            # Generated build files
 
 ## Features (Phase 1)
 
