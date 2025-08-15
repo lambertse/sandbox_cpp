@@ -118,7 +118,7 @@ std::string formatMsg(Msg &&...args) {
 
   size_t idx = 0;
   while (idx < format_string.size()) {
-    int32_t found_idx = format_string.find(brace, idx);
+    size_t found_idx = format_string.find(brace, idx);
     if (found_idx == std::string::npos) break;
     std::string replace_str = "";
     if (arg_idx < arg_strings.size()) {

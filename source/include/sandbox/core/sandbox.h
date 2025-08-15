@@ -6,6 +6,8 @@
 #include <string>
 
 #include "sandbox/config/config.h"
+#include "sandbox/security/policy.h"
+#include "sandbox/security/seccomp.h"
 namespace sandbox {
 enum class SandboxStatus {
   NOT_STARTED,
@@ -34,6 +36,7 @@ class Sandbox {
   std::chrono::steady_clock::time_point start_time;
 
   // Internal methods
+  bool setup_security_policy();
   bool setup_resource_limits();
   bool setup_working_directory();
   pid_t fork_and_exec();

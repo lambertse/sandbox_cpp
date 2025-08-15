@@ -23,17 +23,20 @@ void print_usage(const char* program_name) {
   std::cout << "  -d, --debug             Enable debug logging\n";
   std::cout
       << "  -l, --log <file>        Log file path (default: sandbox.log)\n";
-  std::cout << "  --no-console            Disable console logging\n\n";
+  std::cout << "  --no-console            Disable console logging\n";
+  std::cout << "  --no-seccomp            Disable seccomp filtering\n";
+  std::cout << "  -p, --policy <level>    Security policy "
+               "(strict/moderate/permissive)\n";
+  std::cout
+      << "  --no-syscall-log        Disable syscall violation logging\n\n";
   std::cout << "Examples:\n";
   std::cout << "  " << program_name << " /bin/echo \"Hello World\"\n";
   std::cout << "  " << program_name << " -m 64 -t 5 ./my_program arg1 arg2\n";
   std::cout << "  " << program_name
-            << " -d --log debug.log /usr/bin/test_program\n";
+            << " -p strict --no-syscall-log /usr/bin/test_program\n";
 }
-
 SandboxConfig parse_arguments(int argc, char* argv[]) {
   SandboxConfig config = ConfigLoader::create_default();
-
   if (argc < 2) {
     print_usage(argv[0]);
     exit(1);
@@ -86,16 +89,19 @@ SandboxConfig parse_arguments(int argc, char* argv[]) {
         config.log_file_path = argv[i];
       } else if (arg == "--no-console") {
         config.enable_console_logging = false;
+      } else if (arg == "--no-seccomp") {
+        config.enable_seccomp = false;
+      } else if (arg == "-p" || arg == "--policy") {
+        if (++i >= argc) {
+          std::cerr << "Error: " << arg << " requires a value\n";
+          exit(1);
+        }
+        config.security_policy_level = argv[i];
+      } else if (arg == "--no-syscall-log") {
+        config.log_syscall_violations = false;
       } else {
         std::cerr << "Error: Unknown option " << arg << "\n";
         exit(1);
-      }
-    } else {
-      if (!found_program) {
-        config.program_path = arg;
-        found_program = true;
-      } else {
-        config.program_args.push_back(arg);
       }
     }
   }

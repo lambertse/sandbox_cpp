@@ -53,6 +53,11 @@ SandboxConfig ConfigLoader::create_default() {
   config.enable_console_logging = true;
   config.enable_debug_logging = false;
 
+  // Phase 2 security settings
+  config.enable_seccomp = true;
+  config.security_policy_level = "moderate";
+  config.log_syscall_violations = true;
+
   return config;
 }
 
@@ -69,6 +74,11 @@ bool ConfigLoader::save_to_file(const SandboxConfig& config,
   SANDBOX_LOGGER_INFO("Saving configuration to: " + config_path);
   // For Phase 1, just return true
   // In later phases, we'll add JSON serialization
+  if (!config.is_valid()) {
+    SANDBOX_LOGGER_ERROR("Configuration is invalid, not saving.");
+    return false;
+  }
+  // TBD
   return true;
 }
 

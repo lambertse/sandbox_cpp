@@ -22,11 +22,15 @@ struct SandboxConfig {
   bool enable_console_logging = true;
   bool enable_debug_logging = false;
 
+  bool enable_seccomp = true;
+  std::string security_policy_level =
+      "moderate";  // strict, moderate, permissive, custom
+  std::string custom_policy_file = "";
+  bool log_syscall_violations = true;
+
   // Security (for future phases)
-  bool enable_seccomp = false;
   bool enable_ptrace = false;
   bool enable_network_isolation = false;
-
   // Validation
   bool is_valid() const;
   void print() const;

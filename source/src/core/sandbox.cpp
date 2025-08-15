@@ -44,15 +44,16 @@ ExecutionResult Sandbox::execute() {
       return result;
     }
 
-    // Fork and execute the program
-    child_pid = fork_and_exec();
-
-    if (child_pid == -1) {
-      result.error_message = "Failed to fork process";
-      current_status = SandboxStatus::ERROR;
-      return result;
+    // Setup security policy if enabled
+    if (config.enable_seccomp) {
+      if (!setup_security_policy()) {
+        result.error_message = "Failed to setup security policy";
+        return result;
+      }
     }
 
+    // Fork and execute the program
+    child_pid = fork_and_exec();
     SANDBOX_LOGGER_INFO("Child process started with PID: {}", child_pid);
 
     // Wait for completion
@@ -82,6 +83,37 @@ bool Sandbox::setup_working_directory() {
       return false;
     }
   }
+  return true;
+}
+
+bool Sandbox::setup_security_policy() {
+  using namespace sandbox::security;
+
+  SANDBOX_LOGGER_DEBUG("Setting up security policy: {}",
+                       config.security_policy_level);
+
+  // This will be applied in the child process
+  // We just validate the configuration here
+  SecurityPolicy policy;
+
+  if (config.security_policy_level == "strict") {
+    policy = SecurityPolicy::create_strict_policy();
+  } else if (config.security_policy_level == "moderate") {
+    policy = SecurityPolicy::create_moderate_policy();
+  } else if (config.security_policy_level == "permissive") {
+    policy = SecurityPolicy::create_permissive_policy();
+  } else {
+    SANDBOX_LOGGER_ERROR("Unknown security policy level: {}",
+                         config.security_policy_level);
+    return false;
+  }
+
+  if (!policy.is_valid()) {
+    SANDBOX_LOGGER_ERROR("Security policy validation failed");
+    return false;
+  }
+
+  SANDBOX_LOGGER_INFO("Security policy configured successfully");
   return true;
 }
 
@@ -136,7 +168,7 @@ pid_t Sandbox::fork_and_exec() {
 
   if (pid == 0) {
     // Child process
-    SANDBOX_LOGGER_DEBUG("Child process started, setting up resource limits");
+    SANDBOX_LOGGER_DEBUG("Child process started, setting up environment");
 
     // Setup resource limits in child
     if (!setup_resource_limits()) {
@@ -144,8 +176,33 @@ pid_t Sandbox::fork_and_exec() {
       _exit(1);
     }
 
+    // Setup seccomp filter if enabled
+    if (config.enable_seccomp) {
+      using namespace sandbox::security;
+
+      SecurityPolicy policy;
+      if (config.security_policy_level == "strict") {
+        policy = SecurityPolicy::create_strict_policy();
+      } else if (config.security_policy_level == "moderate") {
+        policy = SecurityPolicy::create_moderate_policy();
+      } else if (config.security_policy_level == "permissive") {
+        policy = SecurityPolicy::create_permissive_policy();
+      }
+
+      policy.set_log_violations(config.log_syscall_violations);
+
+      SeccompFilter filter(policy);
+      if (!filter.install_filter()) {
+        SANDBOX_LOGGER_ERROR("Failed to install seccomp filter");
+        _exit(1);
+      }
+
+      SANDBOX_LOGGER_DEBUG("Seccomp filter installed in child process");
+    }
+
     // Prepare arguments for execv
     std::vector<char*> args;
+
     args.push_back(const_cast<char*>(config.program_path.c_str()));
 
     for (const auto& arg : config.program_args) {
